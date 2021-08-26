@@ -1,0 +1,235 @@
+/******************************************************************************
+
+Welcome to GDB Online.
+GDB online is an online compiler and debugger tool for C, C++, Python, Java, PHP, Ruby, Perl,
+C#, VB, Swift, Pascal, Fortran, Haskell, Objective-C, Assembly, HTML, CSS, JS, SQLite, Prolog.
+Code, Compile, Run and Debug online from anywhere in world.
+
+*******************************************************************************/
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct {
+	int **data;
+	int num_rows;
+	int num_cols;
+} matrix;
+
+typedef struct NODE {
+	struct NODE *prev;
+	struct NODE *next;
+    matrix *mat;
+} node;
+
+typedef struct {
+	node *head;
+} chain;
+
+matrix *create_matrix(int num_rows, int num_cols);
+void print_matrix(matrix *mat);
+void increment(matrix *mat, int num);
+void scalar_multiply(matrix *mat, int num);
+void scalar_divide(matrix *mat, int num);
+void scalar_power(matrix *mat, int num);
+void add_row(matrix *mat, int *row);
+void add_col(matrix *mat, int *col);
+void delete_matrix(matrix *mat);
+int power(int x, int a);
+
+void insert_node_before(chain *chn, int index, matrix *mat);
+void insert_node_after(chain *chn, int index, matrix *mat);
+void delete_node(chain *chn, int index);
+void delete_list(chain *chn);
+
+void run(chain *chn);
+void print_chain(chain * chn);
+
+matrix *copy_matrix(matrix *mat);
+
+int main()
+{
+    chain * chn = (chain *) malloc(sizeof(chain));
+    chn->head = NULL;
+	run(chn);
+    print_chain(chn);
+    free(chn);
+	return 0;
+}
+
+// parse the input
+void run(chain *chn) 
+{
+    node *newNode,*cur;
+    int a[5]={1,4,5,6,7};
+    for (int i = 0; i < 5; i++) {
+        newNode=(node*)malloc(sizeof(node));
+	    newNode->prev=newNode->next=NULL;
+	    
+        if (chn->head==NULL) {
+            // create matrix
+        	matrix *mat=create_matrix(2, 2);
+        	int **data=mat->data;
+        	data[0][0]=1;
+        	data[0][1]=2;
+        	data[1][0]=3;
+        	data[1][1]=4;
+        	
+        	newNode->mat=mat;
+	        chn->head=cur=newNode;
+        } else {
+            matrix *newMat=copy_matrix(cur->mat);
+            
+            //various functions
+    	    if (a[i]==2) {
+    	        
+    	    } else if (a[i]==3) {
+    	        
+    	    } else if (a[i]==4) {
+    	        increment(newMat, 1);
+    	    } else if (a[i]==5) {
+    	        scalar_multiply(newMat, 10);
+    	    } else if (a[i]==6) {
+    	        scalar_divide(newMat, 2);
+    	    } else if (a[i]==7) {
+    	        scalar_power(newMat, 2);
+    	    }
+    	    
+    	    newNode->mat=newMat;
+    	    newNode->prev=cur;
+    	    cur->next=newNode;
+    	    cur=cur->next;
+        }
+    }
+}
+
+//Copy a matrix
+matrix *copy_matrix(matrix *mat)
+{
+    matrix *newMat=create_matrix(mat->num_rows, mat->num_cols);
+    for (int i = 0; i < mat->num_rows; i++) {
+        for (int j = 0; j < mat->num_cols; j++) {
+            newMat->data[i][j]=mat->data[i][j];
+        }
+    }
+    
+    return newMat;
+}
+
+//Print the chain
+void print_chain(chain * chn)
+{
+   node *cur=chn->head;
+   while (cur!=NULL) {
+       print_matrix(cur->mat);
+       printf("\n");
+       cur=cur->next;
+   }
+}
+
+matrix *create_matrix(int num_rows, int num_cols)
+{   
+    matrix *mat=(matrix*)malloc(sizeof(matrix));
+    int **data=(int**)malloc(num_rows*sizeof(int*));
+    
+    for (int i=0; i < num_rows; i++) {
+        data[i]=(int*)calloc(num_cols, sizeof(int));
+    }
+    
+    mat->data=data;
+    mat->num_cols=num_cols;
+    mat->num_rows=num_rows;
+    
+    return mat;
+}
+
+void increment(matrix *mat, int num)
+{
+    int row_idx, col_idx;
+    for(row_idx = 0; row_idx < mat->num_rows; ++row_idx) {
+        for(col_idx = 0; col_idx < mat->num_cols; ++col_idx) {
+            mat->data[row_idx][col_idx]+=num;
+        }
+    }
+}
+
+void scalar_multiply(matrix *mat, int num)
+{
+    int row_idx, col_idx;
+    for(row_idx = 0; row_idx < mat->num_rows; ++row_idx) {
+        for(col_idx = 0; col_idx < mat->num_cols; ++col_idx) {
+            mat->data[row_idx][col_idx]*=num;
+        }
+    }
+}
+
+void scalar_divide(matrix *mat, int num)
+{
+    int row_idx, col_idx;
+    for(row_idx = 0; row_idx < mat->num_rows; ++row_idx) {
+        for(col_idx = 0; col_idx < mat->num_cols; ++col_idx) {
+            mat->data[row_idx][col_idx]/=num;
+        }
+    }
+}
+
+void scalar_power(matrix *mat, int num)
+{
+    int row_idx, col_idx;
+    for(row_idx = 0; row_idx < mat->num_rows; ++row_idx) {
+        for(col_idx = 0; col_idx < mat->num_cols; ++col_idx) {
+            mat->data[row_idx][col_idx]=power(mat->data[row_idx][col_idx], num);
+        }
+    }
+}
+
+int power(int x, int a) {
+    if (a==0) {
+        return 1;
+    } else if (a%2==0) {
+        return power(x, a/2)*power(x, a/2);
+    } else {
+        return x*power(x, (a-1)/2)*power(x, (a-1)/2);
+    }
+}
+
+void add_row(matrix *mat, int *row)
+{
+    mat->num_rows+=1;
+    mat->data=(int**)realloc(mat->data,mat->num_rows*sizeof(int*));
+    mat->data[mat->num_rows-1]=row;
+}
+
+void add_col(matrix *mat, int *col)
+{
+    mat->num_cols+=1;
+    for (int i = 0; i < mat->num_rows; i++) {
+        mat->data[i]=(int*)realloc(mat->data[i], mat->num_cols*sizeof(int));
+        mat->data[i][mat->num_cols-1]=col[i];
+    }
+    
+}
+
+void print_matrix(matrix *mat) 
+{
+    int row_idx, col_idx;
+    for(row_idx = 0; row_idx < mat->num_rows; ++row_idx) {
+        for(col_idx = 0; col_idx < mat->num_cols; ++col_idx) {
+            if (col_idx == mat->num_cols-1) {
+                // printf("%d%d\n", col_idx, row_idx);
+                printf("%d\n", mat->data[row_idx][col_idx]);
+            } else {
+                // printf("%d%d\n", col_idx, row_idx);
+                printf("%d ", mat->data[row_idx][col_idx]);
+            }
+        }
+    }
+}
+
+void delete_matrix(matrix *mat)
+{
+    for (int i = 0; i < mat->num_rows; i++) {
+        free(mat->data[i]);
+    }
+    free(mat->data);
+    free(mat);
+}
